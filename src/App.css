@@ -1,0 +1,250 @@
+/* src/App.css - FINAL PROFESSIONAL LAPTOP UI */
+
+.App {
+  text-align: center;
+}
+
+.App-header {
+  background-color: #1a1c23;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* Aligns content to the top */
+  font-size: 1rem;
+  color: white;
+  padding: 2rem;
+  padding-top: 4rem; /* More space at the top */
+}
+
+.App-header h1 {
+  margin-bottom: 2rem;
+}
+
+/* --- LAYOUT CONTAINER --- */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* Align columns to the top */
+  gap: 2rem;
+  width: 100%;
+  max-width: 1100px; /* Optimal width for laptops */
+}
+
+.left-column, .right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.left-column {
+  width: 55%;
+}
+
+.right-column {
+  width: 45%;
+}
+
+
+/* --- GENERAL CARD STYLES --- */
+.card {
+  background-color: #282c34;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  text-align: left;
+}
+
+.card h3 {
+  color: #61dafb;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* --- BUTTONS --- */
+.connect-wallet-btn {
+  background-color: #61dafb;
+  color: #1a1c23;
+  font-weight: bold;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  margin-bottom: 1rem;
+}
+.connect-wallet-btn:hover {
+  background-color: #52b8d8;
+}
+
+.swap-button, .ai-section button {
+  width: 100%;
+  background-color: #61dafb;
+  color: #1a1c23;
+  font-weight: bold;
+  padding: 1rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  transition: all 0.2s ease-in-out;
+}
+.swap-button:hover, .ai-section button:hover {
+  background-color: #52b8d8;
+}
+.swap-button:disabled, .ai-section button:disabled {
+  background-color: #4a5568; cursor: not-allowed;
+}
+
+/* --- WALLET INFO CARD --- */
+.wallet-info p {
+  font-size: 0.9rem;
+  color: #a0aec0;
+  word-wrap: break-word;
+  margin-bottom: 1.5rem;
+}
+
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.portfolio-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: #1a1c23;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+}
+
+.portfolio-item img {
+  width: 32px; height: 32px;
+}
+
+.portfolio-item div {
+  display: flex; flex-direction: column;
+}
+
+.token-symbol { font-weight: bold; }
+.token-balance { font-size: 0.8rem; color: #a0aec0; }
+
+
+/* --- SWAP & AI INPUTS --- */
+.token-input-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #1a1c23;
+  border-radius: 0.75rem;
+  padding: 0.5rem;
+  border: 2px solid #4a5568;
+  transition: border-color 0.2s;
+}
+.token-input-container:focus-within {
+  border-color: #61dafb;
+}
+
+.token-input {
+  flex-grow: 1;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.75rem;
+  font-weight: 500;
+  outline: none;
+  padding: 0.5rem 1rem;
+}
+.token-input::-webkit-outer-spin-button,
+.token-input::-webkit-inner-spin-button {
+  -webkit-appearance: none; margin: 0;
+}
+.token-input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.token-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  background-color: #282c34;
+  border-radius: 0.5rem;
+  flex-shrink: 0;
+}
+.token-label img { width: 28px; height: 28px; }
+
+.token-select {
+  background: transparent;
+  border: none;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.arrow-down {
+  text-align: center;
+  font-size: 1.5rem;
+  color: #61dafb;
+  margin: 0.5rem 0;
+}
+
+/* AI SECTION */
+.ai-input-wrapper {
+  display: flex;
+  gap: 0.5rem;
+}
+.ai-input-wrapper input {
+  flex-grow: 1;
+  background-color: #1a1c23;
+  border: 2px solid #4a5568;
+  border-radius: 0.75rem;
+  padding: 0.8rem 1rem;
+  color: white;
+  outline: none;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+.ai-input-wrapper input:focus {
+  border-color: #61dafb;
+}
+.ai-input-wrapper button {
+  margin-top: 0;
+  padding: 0.8rem 1rem;
+  font-size: 0.9rem;
+}
+.ai-response {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: #1a1c23;
+  border-radius: 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.ai-response strong {
+  color: #61dafb;
+}
+
+/* MESSAGE BOX */
+.message-box {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.75rem 1.5rem;
+  background-color: #1a1c23;
+  border: 1px solid #61dafb;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
