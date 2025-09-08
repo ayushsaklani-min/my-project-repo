@@ -1,4 +1,4 @@
-/* src/App.css - FINAL PROFESSIONAL LAPTOP UI */
+/* src/App.css final ui */
 
 .App {
   text-align: center;
@@ -248,3 +248,74 @@
   z-index: 100;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
+.activity-feed {
+  margin-top: 20px;
+}
+
+.activity-list {
+  max-height: 200px; /* Control the height of the feed */
+  overflow-y: auto;  /* Add a scrollbar if content overflows */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 10px; /* Space for scrollbar */
+}
+
+.activity-item {
+  font-size: 0.8rem;
+  color: #ccc;
+  margin: 0;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  animation: fadeIn 0.5s ease-in-out; /* Fade-in animation */
+}
+
+.activity-placeholder {
+    font-size: 0.8rem;
+    color: #888;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Keyframe animation for the fade-in effect */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Minor tweak for the new slippage UI */
+.trading-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.trading-header h3 {
+    margin: 0;
+}
+
+.slippage-setter {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8rem;
+}
+
+.slippage-setter input {
+    width: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid #444;
+    color: white;
+    border-radius: 4px;
+    padding: 2px 4px;
+    text-align: center;
+}
+
