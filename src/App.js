@@ -46,6 +46,9 @@ function App() {
   const [isQuoteLoading, setIsQuoteLoading] = useState(false);
   const [slippage, setSlippage] = useState("0.5");
   const [isMockQuote, setIsMockQuote] = useState(false);
+  const [transactionHistory, setTransactionHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [portfolioValue, setPortfolioValue] = useState(0);
 
   const fromTokenBalance = portfolio[fromToken] ? parseFloat(portfolio[fromToken]).toFixed(4) : '0.00';
 
@@ -121,6 +124,8 @@ function App() {
   async function fetchAllBalances(currentProvider, account) {
     setMessage("Fetching token balances...");
     const portfolioData = {};
+    let totalValue = 0;
+    
     for (const tokenSymbol in TOKENS) {
       const token = TOKENS[tokenSymbol];
       try {
@@ -131,13 +136,19 @@ function App() {
           const tokenContract = new ethers.Contract(token.address, ERC20_ABI, currentProvider);
           balanceWei = await tokenContract.balanceOf(account);
         }
-        portfolioData[tokenSymbol] = ethers.formatUnits(balanceWei, token.decimals);
+        const balance = ethers.formatUnits(balanceWei, token.decimals);
+        portfolioData[tokenSymbol] = balance;
+        
+        // Calculate portfolio value
+        const tokenValue = parseFloat(balance) * MOCK_PRICES[tokenSymbol];
+        totalValue += tokenValue;
       } catch (error) {
         console.error(`Could not fetch balance for ${tokenSymbol}`, error);
         portfolioData[tokenSymbol] = "0";
       }
     }
     setPortfolio(portfolioData);
+    setPortfolioValue(totalValue);
     setMessage("");
   }
 
@@ -186,6 +197,20 @@ function App() {
         return;
       }
       await tx.wait();
+      
+      // Add to transaction history
+      const newTransaction = {
+        id: Date.now(),
+        type: 'swap',
+        fromToken,
+        toToken,
+        fromAmount,
+        toAmount,
+        timestamp: new Date().toLocaleString(),
+        txHash: tx.hash
+      };
+      setTransactionHistory(prev => [newTransaction, ...prev.slice(0, 9)]); // Keep last 10 transactions
+      
       setMessage("Swap successful!");
       fetchAllBalances(provider, walletAddress);
     } catch (error) {
@@ -201,6 +226,31 @@ function App() {
   // Input sanitization function
   const sanitizeInput = (input) => {
     return input.replace(/[<>]/g, '').trim().substring(0, 500); // Remove potential XSS chars and limit length
+  };
+
+  // Format currency values
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(value);
+  };
+
+  // Calculate percentage of portfolio
+  const getPortfolioPercentage = (tokenSymbol) => {
+    if (portfolioValue === 0) return 0;
+    const tokenValue = parseFloat(portfolio[tokenSymbol] || 0) * MOCK_PRICES[tokenSymbol];
+    return ((tokenValue / portfolioValue) * 100).toFixed(1);
+  };
+
+  // Get portfolio diversity score
+  const getDiversityScore = () => {
+    const nonZeroBalances = Object.entries(portfolio).filter(([, balance]) => parseFloat(balance) > 0);
+    if (nonZeroBalances.length <= 1) return "Low";
+    if (nonZeroBalances.length === 2) return "Medium";
+    return "High";
   };
 
   async function handleAskAI() {
@@ -287,17 +337,56 @@ function App() {
               <div className="wallet-info card">
                 <h3>Wallet Overview</h3>
                 <p><strong>Address:</strong> {`${walletAddress.substring(0, 6)}...${walletAddress.substring(walletAddress.length - 4)}`}</p>
-                <div className="portfolio-grid">
-                  {Object.entries(portfolio).map(([symbol, balance]) => (
-                    <div className="portfolio-item" key={symbol}>
-                      <img src={TOKENS[symbol]?.logo} alt={symbol} />
-                      <div>
-                        <span className="token-symbol">{symbol}</span>
-                        <span className="token-balance">{parseFloat(balance).toFixed(4)}</span>
-                      </div>
-                    </div>
-                  ))}
+                <div className="portfolio-stats">
+                  <div className="stat-item">
+                    <span className="stat-label">Total Value:</span>
+                    <span className="stat-value">{formatCurrency(portfolioValue)}</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">Diversity:</span>
+                    <span className="stat-value">{getDiversityScore()}</span>
+                  </div>
                 </div>
+                <div className="portfolio-grid">
+                  {Object.entries(portfolio).map(([symbol, balance]) => {
+                    const tokenValue = parseFloat(balance) * MOCK_PRICES[symbol];
+                    const percentage = getPortfolioPercentage(symbol);
+                    return (
+                      <div className="portfolio-item" key={symbol}>
+                        <img src={TOKENS[symbol]?.logo} alt={symbol} />
+                        <div>
+                          <span className="token-symbol">{symbol}</span>
+                          <span className="token-balance">{parseFloat(balance).toFixed(4)}</span>
+                          <span className="token-value">{formatCurrency(tokenValue)} ({percentage}%)</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <button 
+                  onClick={() => setShowHistory(!showHistory)} 
+                  className="history-toggle-btn"
+                  style={{ marginTop: '10px', padding: '8px 16px', fontSize: '14px' }}
+                >
+                  {showHistory ? 'Hide' : 'Show'} Transaction History
+                </button>
+                {showHistory && (
+                  <div className="transaction-history">
+                    <h4>Recent Transactions</h4>
+                    {transactionHistory.length === 0 ? (
+                      <p>No transactions yet</p>
+                    ) : (
+                      transactionHistory.map(tx => (
+                        <div key={tx.id} className="transaction-item">
+                          <div className="tx-details">
+                            <span>{tx.fromAmount} {tx.fromToken} → {parseFloat(tx.toAmount).toFixed(4)} {tx.toToken}</span>
+                            <small>{tx.timestamp}</small>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
               </div>
               <div className="ai-section card">
                 <h3>Ask Aya Anything!</h3>

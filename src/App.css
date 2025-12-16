@@ -319,3 +319,91 @@
     text-align: center;
 }
 
+/* --- NEW PORTFOLIO STATS --- */
+.portfolio-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background-color: #1a1c23;
+  border-radius: 0.5rem;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #a0aec0;
+  margin-bottom: 0.25rem;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #61dafb;
+}
+
+/* --- ENHANCED PORTFOLIO ITEM --- */
+.token-value {
+  font-size: 0.75rem;
+  color: #61dafb;
+  margin-top: 0.25rem;
+}
+
+/* --- TRANSACTION HISTORY --- */
+.history-toggle-btn {
+  background-color: #4a5568;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.history-toggle-btn:hover {
+  background-color: #61dafb;
+  color: #1a1c23;
+}
+
+.transaction-history {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #1a1c23;
+  border-radius: 0.5rem;
+}
+
+.transaction-history h4 {
+  color: #61dafb;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.transaction-item {
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem;
+  border-left: 3px solid #61dafb;
+}
+
+.tx-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.tx-details span {
+  font-size: 0.9rem;
+  color: white;
+}
+
+.tx-details small {
+  font-size: 0.75rem;
+  color: #a0aec0;
+}
+
