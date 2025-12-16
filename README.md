@@ -2,6 +2,8 @@
 
 A secure React-based crypto trading assistant with AI-powered portfolio analysis.
 
+*Last updated: December 17, 2025*
+
 ## 🔒 Security Setup (IMPORTANT)
 
 1. **Environment Variables**: Copy `.env.example` to `.env` and add your API keys:
