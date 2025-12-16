@@ -1,6 +1,42 @@
-# Getting Started with Create React App
+# AYA AI Trading Assistant
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A secure React-based crypto trading assistant with AI-powered portfolio analysis.
+
+## 🔒 Security Setup (IMPORTANT)
+
+1. **Environment Variables**: Copy `.env.example` to `.env` and add your API keys:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. **Add your Google AI API Key** to the `.env` file:
+   ```
+   REACT_APP_GOOGLE_AI_API_KEY=your_actual_api_key_here
+   ```
+
+3. **Never commit** the `.env` file to version control (already in `.gitignore`)
+
+## 🚀 Quick Start
+
+## 📋 Prerequisites
+
+- Node.js (v16 or higher)
+- MetaMask browser extension
+- Google AI API Key ([Get one here](https://makersuite.google.com/app/apikey))
+
+## 🛠️ Installation
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Set up environment variables (see Security Setup above)
+
+3. Start the development server:
+   ```bash
+   npm start
+   ```
 
 ## Available Scripts
 

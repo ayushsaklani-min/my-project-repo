@@ -6,14 +6,14 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import './App.css';
 import UniswapV2Router02ABI from './abis/UniswapV2Router02.json';
 
-// --- IMPORTANT: PASTE YOUR GOOGLE AI API KEY HERE ---
-const API_KEY = "AIzaSyB8hDBmaEXZediKn6J6f-fnIPqHTKmPTu8"; // IMPORTANT: Replace this with your actual key
+// --- SECURE: API KEY FROM ENVIRONMENT VARIABLES ---
+const API_KEY = process.env.REACT_APP_GOOGLE_AI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 
 // --- TOKEN AND UNISWAP CONFIGURATION (SEPOLIA TESTNET) ---
-const UNISWAP_ROUTER_ADDRESS = '0xC532a74256D3Db42D0Bf7a0400fEFDbad7694008';
+const UNISWAP_ROUTER_ADDRESS = process.env.REACT_APP_UNISWAP_ROUTER_ADDRESS || '0xC532a74256D3Db42D0Bf7a0400fEFDbad7694008';
 
 const TOKENS = {
   ETH: { address: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', symbol: 'ETH', decimals: 18, logo: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png' },
@@ -142,12 +142,21 @@ function App() {
   }
 
   async function handleSwap() {
-    if (!fromAmount || !toAmount || toAmount === "N/A" || isNaN(fromAmount) || Number(fromAmount) <= 0) {
-      setMessage("Please enter a valid amount and get a quote.");
+    // Enhanced input validation
+    const amount = parseFloat(fromAmount);
+    if (!fromAmount || !toAmount || toAmount === "N/A" || isNaN(amount) || amount <= 0 || amount > 1000000) {
+      setMessage("Please enter a valid amount between 0 and 1,000,000.");
       return;
     }
     if (fromToken === toToken) {
       setMessage("Cannot swap a token for itself.");
+      return;
+    }
+    
+    // Check if user has sufficient balance
+    const userBalance = parseFloat(portfolio[fromToken] || 0);
+    if (amount > userBalance) {
+      setMessage(`Insufficient ${fromToken} balance. You have ${userBalance.toFixed(4)} ${fromToken}.`);
       return;
     }
     setIsTrading(true);
@@ -189,15 +198,28 @@ function App() {
     }
   }
 
+  // Input sanitization function
+  const sanitizeInput = (input) => {
+    return input.replace(/[<>]/g, '').trim().substring(0, 500); // Remove potential XSS chars and limit length
+  };
+
   async function handleAskAI() {
     if (Object.keys(portfolio).length === 0) {
       setMessage("Please connect your wallet first so I can see your portfolio.");
       return;
     }
-    if (!API_KEY || API_KEY === "YOUR_GOOGLE_AI_API_KEY_HERE") {
-      setMessage("Please add your Google AI API Key to the App.js file.");
+    if (!API_KEY) {
+      setMessage("Please add your Google AI API Key to the .env file as REACT_APP_GOOGLE_AI_API_KEY.");
       return;
     }
+    
+    // Sanitize user input
+    const sanitizedInput = sanitizeInput(userInput);
+    if (sanitizedInput.length === 0) {
+      setMessage("Please enter a valid question.");
+      return;
+    }
+    
     setIsLoading(true);
     setAiResponse("");
     setMessage("");
@@ -206,8 +228,8 @@ function App() {
         .map(([symbol, balance]) => `${symbol}: ${parseFloat(balance).toFixed(4)}`)
         .join(', ');
 
-    // --- NEW: Enhanced, proactive AI prompt ---
-    const userQuery = userInput.trim();
+    // --- Enhanced, proactive AI prompt with sanitized input ---
+    const userQuery = sanitizedInput;
     const prompt = `
         You are a helpful crypto trading assistant named Aya. 
         The user's wallet portfolio contains: ${portfolioString}.
