@@ -1,20 +1,21 @@
 /* src/components/LandingPage.css */
 .landing-page {
     min-height: 100vh;
-    background: radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.15), transparent 25%), radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.15), transparent 25%);
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    color: white;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     display: flex;
     flex-direction: column;
 }
 
-/* Nav */
 .landing-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem 5%;
-    backdrop-filter: var(--glass);
-    background: rgba(10, 11, 20, 0.7);
-    border-bottom: 1px solid var(--border-light);
+    padding: 20px 50px;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -23,87 +24,86 @@
 .logo-container {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 15px;
 }
 
 .logo-container img {
-    width: 32px;
-    height: 32px;
-    filter: drop-shadow(0 0 8px var(--primary-glow));
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
 }
 
 .logo-text {
-    font-size: 1.5rem;
+    font-size: 24px;
     font-weight: 700;
-    letter-spacing: -0.02em;
+    background: linear-gradient(45deg, #61dafb, #9261fb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 1px;
+}
+
+.nav-links button {
+    background: transparent;
+    border: none;
+    color: #e0e0e0;
+    font-size: 16px;
+    margin-left: 30px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.nav-links button:hover {
     color: #fff;
 }
 
 .launch-btn {
-    background: var(--text-main);
-    color: var(--bg-dark);
+    background: linear-gradient(90deg, #61dafb, #9261fb);
     border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: var(--radius-lg);
+    padding: 10px 25px;
+    border-radius: 25px;
+    color: white;
     font-weight: 600;
     cursor: pointer;
-    transition: var(--ease-spring);
-    font-size: 0.95rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
 }
 
 .launch-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 5px 15px rgba(146, 97, 251, 0.4);
 }
 
-/* Hero */
 .hero-section {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 140px 20px 100px;
+    padding: 120px 20px;
     position: relative;
     overflow: hidden;
 }
 
-/* Background blurred elements */
-.hero-section::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: 50%;
-    transform: translate(-50%, 0);
-    width: 600px;
-    height: 600px;
-    background: var(--primary);
-    filter: blur(120px);
-    opacity: 0.2;
-    z-index: -1;
-    border-radius: 50%;
-}
-
 .hero-title {
-    font-size: clamp(3rem, 8vw, 6rem);
+    font-size: 4.5rem;
     font-weight: 800;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     line-height: 1.1;
-    letter-spacing: -0.02em;
 }
 
 .gradient-text {
-    background: var(--grad-primary);
+    background: linear-gradient(90deg, #61dafb, #9261fb);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    display: inline-block;
 }
 
 .hero-subtitle {
     font-size: 1.25rem;
-    color: var(--text-muted);
-    max-width: 650px;
-    margin-bottom: 48px;
+    color: #b0b0b0;
+    max-width: 600px;
+    margin-bottom: 50px;
     line-height: 1.6;
 }
 
@@ -113,90 +113,58 @@
 }
 
 .cta-primary {
-    background: var(--grad-primary);
-    color: white;
-    padding: 18px 48px;
+    padding: 16px 45px;
     font-size: 1.1rem;
-    border-radius: 100px;
-    box-shadow: var(--shadow-glow);
+    border-radius: 30px;
 }
 
-.cta-primary:hover {
-    box-shadow: 0 0 40px var(--primary-glow);
-}
-
-/* Features */
 .features-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 32px;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 40px;
     padding: 80px 10%;
-    max-width: 1400px;
-    margin: 0 auto;
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .feature-card {
-    background: var(--bg-card);
-    padding: 48px 32px;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-light);
-    transition: var(--ease-slow);
-    position: relative;
-    overflow: hidden;
-}
-
-.feature-card::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-    opacity: 0;
-    transition: opacity 0.3s;
-    pointer-events: none;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 40px;
+    border-radius: 24px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: transform 0.3s ease, border-color 0.3s ease;
 }
 
 .feature-card:hover {
-    transform: translateY(-5px);
-    border-color: var(--border-hover);
-    box-shadow: var(--shadow-lg);
-}
-
-.feature-card:hover::after {
-    opacity: 1;
+    transform: translateY(-10px);
+    border-color: rgba(97, 218, 251, 0.3);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .feature-icon {
-    font-size: 2.5rem;
-    margin-bottom: 24px;
-    display: inline-block;
-    padding: 12px;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 16px;
-    border: 1px solid var(--border-light);
+    font-size: 3rem;
+    margin-bottom: 25px;
 }
 
 .feature-card h3 {
     font-size: 1.5rem;
-    margin-bottom: 12px;
-    color: var(--text-main);
+    margin-bottom: 15px;
+    color: white;
+    font-weight: 600;
 }
 
 .feature-card p {
-    color: var(--text-muted);
+    color: #a0a0a0;
     line-height: 1.6;
     font-size: 1rem;
 }
 
 @media (max-width: 768px) {
-    .landing-nav {
-        padding: 1rem 5%;
-    }
-
     .hero-title {
         font-size: 3rem;
     }
 
-    .features-grid {
-        padding: 40px 5%;
+    .landing-nav {
+        padding: 20px;
     }
 }
