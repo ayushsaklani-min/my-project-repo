@@ -500,7 +500,7 @@ function Dashboard() {
                         <div className="right-column">
                             <div className="trading-section card">
                                 <div className="trading-header">
-                                    <h3>Swap Tokens</h3>
+                                    <h3><RefreshCcw size={20} color="#9261fb" /> Swap Tokens</h3>
                                     <div className="slippage-setter">
                                         <label>Slippage:</label>
                                         <input type="number" value={slippage} onChange={(e) => setSlippage(e.target.value)} step="0.1" min="0.1" />
@@ -516,7 +516,11 @@ function Dashboard() {
                                         {renderTokenDropdown(fromToken, setFromToken, toToken)}
                                     </div>
                                 </div>
-                                <p className="arrow-down">↓</p>
+                                <div style={{ display: 'flex', justifyContent: 'center', margin: '-10px 0' }}>
+                                    <div className="arrow-down" style={{ background: '#1a1c23', padding: '5px', borderRadius: '50%', border: '2px solid #282c34' }}>
+                                        <ArrowDown size={20} color="#61dafb" />
+                                    </div>
+                                </div>
                                 <div className="token-input-container">
                                     <input type="text" placeholder="0.0" readOnly value={getQuoteDisplay()} className="token-input quote-output" />
                                     <div className="token-label">
@@ -529,8 +533,9 @@ function Dashboard() {
                                     disabled={isTrading || !fromAmount || !toAmount || toAmount === "N/A"}
                                     className="swap-button"
                                     title={isMockQuote && !isDemoMode ? "Swap is disabled usage" : ""}
+                                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                                 >
-                                    {isTrading ? 'Executing...' : (isDemoMode ? 'Demo Swap' : 'Swap')}
+                                    {isTrading ? 'Executing...' : (isDemoMode ? 'Demo Swap' : 'Swap')} <ArrowRight size={18} />
                                 </button>
                             </div>
                         </div>
