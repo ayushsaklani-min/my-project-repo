@@ -68,7 +68,7 @@ function Dashboard() {
             if (!provider) setWalletAddress(""); // If no provider, clear wallet
             else fetchAllBalances(provider, walletAddress); // Refetch real balances
         }
-    }, [isDemoMode]);
+    }, [isDemoMode, provider, walletAddress, fetchAllBalances]);
 
     const calculatePortfolioValue = (currentPortfolio) => {
         let total = 0;
@@ -163,7 +163,7 @@ function Dashboard() {
         }
     }
 
-    async function fetchAllBalances(currentProvider, account) {
+    const fetchAllBalances = React.useCallback(async (currentProvider, account) => {
         if (isDemoMode) return; // Don't fetch real balances in demo mode
 
         setMessage("Fetching token balances...");
@@ -194,7 +194,7 @@ function Dashboard() {
         setPortfolio(portfolioData);
         setPortfolioValue(totalValue);
         setMessage("");
-    }
+    }, [isDemoMode]);
 
     async function handleSwap() {
         const amount = parseFloat(fromAmount);
