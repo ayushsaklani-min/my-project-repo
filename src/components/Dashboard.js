@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import '../App.css';
 import UniswapV2Router02ABI from '../abis/UniswapV2Router02.json';
 
@@ -25,6 +26,11 @@ const ERC20_ABI = ["function balanceOf(address owner) view returns (uint256)"];
 // --- Mock prices for simulation ---
 const MOCK_PRICES = { ETH: 3000, WETH: 3000, DAI: 1, USDC: 1 };
 
+// --- Mock Chart Data ---
+const MOCK_CHART_DATA = Array.from({ length: 20 }, (_, i) => ({
+    time: `${10 + i}:00`,
+    price: 2950 + Math.random() * 100
+}));
 
 function Dashboard() {
     const [walletAddress, setWalletAddress] = useState("");
@@ -34,6 +40,7 @@ function Dashboard() {
     const [aiResponse, setAiResponse] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState('');
+    const [isDemoMode, setIsDemoMode] = useState(false);
 
     // Trading State
     const [fromToken, setFromToken] = useState('ETH');
@@ -48,14 +55,49 @@ function Dashboard() {
     const [showHistory, setShowHistory] = useState(false);
     const [portfolioValue, setPortfolioValue] = useState(0);
 
+    // Initial Demo balances
+    useEffect(() => {
+        if (isDemoMode) {
+            setPortfolio({ ETH: "10.0", WETH: "0.0", DAI: "0.0", USDC: "0.0" });
+            calculatePortfolioValue({ ETH: "10.0", WETH: "0.0", DAI: "0.0", USDC: "0.0" });
+            setWalletAddress("0xDemoAccount123456789");
+            setMessage("Switched to Demo Mode. You have 10 ETH to trade.");
+        } else {
+            setPortfolio({}); // Reset or maintain real state logic
+            setPortfolioValue(0);
+            if (!provider) setWalletAddress(""); // If no provider, clear wallet
+            else fetchAllBalances(provider, walletAddress); // Refetch real balances
+        }
+    }, [isDemoMode]);
+
+    const calculatePortfolioValue = (currentPortfolio) => {
+        let total = 0;
+        for (const [symbol, balance] of Object.entries(currentPortfolio)) {
+            total += parseFloat(balance || 0) * MOCK_PRICES[symbol];
+        }
+        setPortfolioValue(total);
+    };
+
     const fromTokenBalance = portfolio[fromToken] ? parseFloat(portfolio[fromToken]).toFixed(4) : '0.00';
 
     useEffect(() => {
-        if (fromAmount && !isNaN(fromAmount) && Number(fromAmount) > 0 && provider) {
+        if (fromAmount && !isNaN(fromAmount) && Number(fromAmount) > 0) {
             const getQuote = async () => {
                 setIsQuoteLoading(true);
-                setIsMockQuote(false);
                 setToAmount("");
+
+                // If in demo mode OR no provider, simulate
+                if (isDemoMode || !provider) {
+                    // Simulate network delay
+                    await new Promise(r => setTimeout(r, 600));
+                    const simulatedAmount = (parseFloat(fromAmount) * MOCK_PRICES[fromToken]) / MOCK_PRICES[toToken];
+                    setToAmount(simulatedAmount.toFixed(6));
+                    setIsMockQuote(true);
+                    setIsQuoteLoading(false);
+                    return;
+                }
+
+                setIsMockQuote(false);
                 try {
                     const routerContract = new ethers.Contract(UNISWAP_ROUTER_ADDRESS, UniswapV2Router02ABI, provider);
                     const fromTokenInfo = TOKENS[fromToken];
@@ -82,7 +124,7 @@ function Dashboard() {
         } else {
             setToAmount("");
         }
-    }, [fromAmount, fromToken, toToken, provider]);
+    }, [fromAmount, fromToken, toToken, provider, isDemoMode]);
 
     async function connectWallet() {
         if (window.ethereum) {
@@ -101,6 +143,7 @@ function Dashboard() {
                         const account = await signer.getAddress();
                         setWalletAddress(account);
                         fetchAllBalances(newProvider, account);
+                        setIsDemoMode(false); // Ensure we leave demo mode
                     } catch (switchError) {
                         setMessage("Failed to switch network. Please do it manually in MetaMask.");
                     }
@@ -110,6 +153,7 @@ function Dashboard() {
                 const account = await signer.getAddress();
                 setWalletAddress(account);
                 fetchAllBalances(browserProvider, account);
+                setIsDemoMode(false);
             } catch (error) {
                 console.error("Error connecting:", error);
                 setMessage("Error connecting to wallet.");
@@ -120,6 +164,8 @@ function Dashboard() {
     }
 
     async function fetchAllBalances(currentProvider, account) {
+        if (isDemoMode) return; // Don't fetch real balances in demo mode
+
         setMessage("Fetching token balances...");
         const portfolioData = {};
         let totalValue = 0;
@@ -151,7 +197,6 @@ function Dashboard() {
     }
 
     async function handleSwap() {
-        // Enhanced input validation
         const amount = parseFloat(fromAmount);
         if (!fromAmount || !toAmount || toAmount === "N/A" || isNaN(amount) || amount <= 0 || amount > 1000000) {
             setMessage("Please enter a valid amount between 0 and 1,000,000.");
@@ -162,7 +207,6 @@ function Dashboard() {
             return;
         }
 
-        // Check if user has sufficient balance
         const userBalance = parseFloat(portfolio[fromToken] || 0);
         if (amount > userBalance) {
             setMessage(`Insufficient ${fromToken} balance. You have ${userBalance.toFixed(4)} ${fromToken}.`);
@@ -170,6 +214,29 @@ function Dashboard() {
         }
         setIsTrading(true);
         setMessage('');
+
+        // --- DEMO MODE SWAP ---
+        if (isDemoMode) {
+            setTimeout(() => {
+                const newPortfolio = { ...portfolio };
+                const currentFrom = parseFloat(newPortfolio[fromToken] || 0);
+                const currentTo = parseFloat(newPortfolio[toToken] || 0);
+
+                newPortfolio[fromToken] = (currentFrom - amount).toString();
+                newPortfolio[toToken] = (currentTo + parseFloat(toAmount)).toString();
+
+                setPortfolio(newPortfolio);
+                calculatePortfolioValue(newPortfolio);
+
+                addTransactionToHistory(null); // No tx hash in simulation
+                setMessage("Demo Swap Successful! Portfolio updated.");
+                setIsTrading(false);
+                setFromAmount("");
+            }, 1000);
+            return;
+        }
+
+        // --- REAL SWAP (unchanged) ---
         try {
             const signer = await provider.getSigner();
             const routerContract = new ethers.Contract(UNISWAP_ROUTER_ADDRESS, UniswapV2Router02ABI, signer);
@@ -196,18 +263,7 @@ function Dashboard() {
             }
             await tx.wait();
 
-            // Add to transaction history
-            const newTransaction = {
-                id: Date.now(),
-                type: 'swap',
-                fromToken,
-                toToken,
-                fromAmount,
-                toAmount,
-                timestamp: new Date().toLocaleString(),
-                txHash: tx.hash
-            };
-            setTransactionHistory(prev => [newTransaction, ...prev.slice(0, 9)]); // Keep last 10 transactions
+            addTransactionToHistory(tx.hash);
 
             setMessage("Swap successful!");
             fetchAllBalances(provider, walletAddress);
@@ -221,9 +277,23 @@ function Dashboard() {
         }
     }
 
+    const addTransactionToHistory = (txHash) => {
+        const newTransaction = {
+            id: Date.now(),
+            type: 'swap',
+            fromToken,
+            toToken,
+            fromAmount,
+            toAmount,
+            timestamp: new Date().toLocaleString(),
+            txHash: txHash || `demo-${Date.now()}`
+        };
+        setTransactionHistory(prev => [newTransaction, ...prev.slice(0, 9)]);
+    }
+
     // Input sanitization function
     const sanitizeInput = (input) => {
-        return input.replace(/[<>]/g, '').trim().substring(0, 500); // Remove potential XSS chars and limit length
+        return input.replace(/[<>]/g, '').trim().substring(0, 500);
     };
 
     // Format currency values
@@ -253,15 +323,14 @@ function Dashboard() {
 
     async function handleAskAI() {
         if (Object.keys(portfolio).length === 0) {
-            setMessage("Please connect your wallet first so I can see your portfolio.");
+            setMessage("Please connect your wallet or use Demo Mode.");
             return;
         }
         if (!API_KEY) {
-            setMessage("Please add your Google AI API Key to the .env file as REACT_APP_GOOGLE_AI_API_KEY.");
+            setMessage("Please add API KEY.");
             return;
         }
 
-        // Sanitize user input
         const sanitizedInput = sanitizeInput(userInput);
         if (sanitizedInput.length === 0) {
             setMessage("Please enter a valid question.");
@@ -276,19 +345,14 @@ function Dashboard() {
             .map(([symbol, balance]) => `${symbol}: ${parseFloat(balance).toFixed(4)}`)
             .join(', ');
 
-        // --- Enhanced, proactive AI prompt with sanitized input ---
-        const userQuery = sanitizedInput;
         const prompt = `
         You are a helpful crypto trading assistant named Aya. 
         The user's wallet portfolio contains: ${portfolioString}.
-        The user's question is: "${userQuery || 'Can you analyze my portfolio?'}"
+        The user's question is: "${sanitizedInput}"
 
         Analyze the user's portfolio and provide a helpful, concise insight. 
-        1. Identify their largest holding in terms of approximate USD value (use these prices: ETH/WETH=$3000, DAI/USDC=$1).
-        2. If they have a significant holding in a volatile asset like ETH, suggest a hypothetical diversification strategy, like swapping a small portion for a stablecoin (DAI or USDC) to hedge against volatility.
-        3. If their portfolio is already diversified, compliment them on their strategy.
-        4. If the user asks a specific question, answer it based on their portfolio.
-        5. IMPORTANT: Do NOT give financial advice. Use words like "you could consider" or "one common strategy is". Keep your tone friendly and encouraging.
+        MOCK PRICES: ETH/WETH=$3000, DAI/USDC=$1.
+        IMPORTANT: Do NOT give financial advice.
     `;
 
         try {
@@ -298,7 +362,7 @@ function Dashboard() {
             setAiResponse(text);
         } catch (error) {
             console.error("AI Error:", error);
-            setAiResponse("Sorry, there was an error getting a response. Please check your API key and the console.");
+            setAiResponse("Sorry, there was an error getting a response.");
         } finally {
             setIsLoading(false);
         }
@@ -315,7 +379,7 @@ function Dashboard() {
         if (toAmount === "N/A") return "No quote available";
         if (toAmount) {
             const formattedAmount = `~ ${parseFloat(toAmount).toFixed(6)}`;
-            return isMockQuote ? `${formattedAmount} (Simulated)` : formattedAmount;
+            return isDemoMode || isMockQuote ? `${formattedAmount} (Simulated)` : formattedAmount;
         }
         return "0.0";
     }
@@ -328,20 +392,30 @@ function Dashboard() {
                     <h1>AYA AI Trading Assistant</h1>
                 </div>
 
-                {!walletAddress && (
+                {!walletAddress && !isDemoMode && (
                     <div className="connect-container">
-                        <p className="welcome-text">Connect your wallet to analyze your portfolio and swap tokens.</p>
-                        <button onClick={connectWallet} className="connect-wallet-btn">Connect Wallet</button>
+                        <p className="welcome-text">Connect your wallet OR try our Demo Mode to experience the platform.</p>
+                        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
+                            <button onClick={connectWallet} className="connect-wallet-btn">Connect Wallet</button>
+                            <button onClick={() => setIsDemoMode(true)} className="connect-wallet-btn" style={{ background: '#ec4899' }}>Try Demo Mode</button>
+                        </div>
                     </div>
                 )}
+
+                {isDemoMode && !walletAddress && (
+                    <div style={{ marginBottom: '20px', padding: '10px', background: 'rgba(236, 72, 153, 0.2)', borderRadius: '8px', border: '1px solid #ec4899' }}>
+                        <strong>DEMO MODE ACTIVE:</strong> Using simulated funds. <button onClick={() => setIsDemoMode(false)} style={{ marginLeft: '10px', background: 'transparent', border: '1px solid #fff', color: '#fff', borderRadius: '4px', cursor: 'pointer' }}>Exit Demo</button>
+                    </div>
+                )}
+
                 {message && <p className="message-box">{message}</p>}
 
-                {walletAddress && (
+                {(walletAddress || isDemoMode) && (
                     <div className="container">
                         <div className="left-column">
                             <div className="wallet-info card">
-                                <h3>Wallet Overview</h3>
-                                <p><strong>Address:</strong> {`${walletAddress.substring(0, 6)}...${walletAddress.substring(walletAddress.length - 4)}`}</p>
+                                <h3>Wallet Overview {isDemoMode && "(DEMO)"}</h3>
+                                <p><strong>Address:</strong> {walletAddress || "DEMO-USER"}</p>
                                 <div className="portfolio-stats">
                                     <div className="stat-item">
                                         <span className="stat-label">Total Value:</span>
@@ -393,6 +467,19 @@ function Dashboard() {
                                     </div>
                                 )}
                             </div>
+                            {/* --- PRICE CHART --- */}
+                            <div className="chart-section card" style={{ height: '300px' }}>
+                                <h3>ETH Price Trend (Simulated)</h3>
+                                <ResponsiveContainer width="100%" height="80%">
+                                    <LineChart data={MOCK_CHART_DATA}>
+                                        <XAxis dataKey="time" stroke="#9ca3af" />
+                                        <YAxis stroke="#9ca3af" domain={['auto', 'auto']} />
+                                        <Tooltip contentStyle={{ backgroundColor: '#1a1c23', border: 'none', borderRadius: '8px' }} />
+                                        <Line type="monotone" dataKey="price" stroke="#6366f1" strokeWidth={2} dot={false} />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            </div>
+
                             <div className="ai-section card">
                                 <h3>Ask Aya Anything!</h3>
                                 <div className="ai-input-wrapper">
@@ -432,11 +519,11 @@ function Dashboard() {
                                 </div>
                                 <button
                                     onClick={handleSwap}
-                                    disabled={isTrading || !fromAmount || !toAmount || toAmount === "N/A" || isMockQuote}
+                                    disabled={isTrading || !fromAmount || !toAmount || toAmount === "N/A"}
                                     className="swap-button"
-                                    title={isMockQuote ? "Swap is disabled for simulated prices" : ""}
+                                    title={isMockQuote && !isDemoMode ? "Swap is disabled usage" : ""}
                                 >
-                                    {isTrading ? 'Executing...' : 'Swap'}
+                                    {isTrading ? 'Executing...' : (isDemoMode ? 'Demo Swap' : 'Swap')}
                                 </button>
                             </div>
                         </div>
@@ -446,4 +533,5 @@ function Dashboard() {
         </div>
     );
 }
+
 export default Dashboard;
