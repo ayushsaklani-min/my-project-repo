@@ -349,7 +349,7 @@ function Dashboard() {
             .join(', ');
 
         const prompt = `
-        You are a helpful crypto trading assistant named Aya. 
+        You are a helpful crypto trading assistant named Nero. 
         The user's wallet portfolio contains: ${portfolioString}.
         The user's question is: "${sanitizedInput}"
 
@@ -391,8 +391,8 @@ function Dashboard() {
         <div className="App">
             <header className="App-header">
                 <div className="header-content">
-                    <img src="data:image/svg+xml,%3csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3e%3cdefs%3e%3clinearGradient id='grad1' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3e%3cstop offset='0%25' style='stop-color:%236366f1;stop-opacity:1' /%3e%3cstop offset='100%25' style='stop-color:%23ec4899;stop-opacity:1' /%3e%3c/linearGradient%3e%3c/defs%3e%3cpath d='M 50 10 L 10 90 H 30 L 50 40 L 70 90 H 90 L 50 10 Z' fill='url(%23grad1)' /%3e%3cpath d='M 40 60 H 60 L 50 80 Z' fill='url(%23grad1)' /%3e%3c/svg%3e" alt="AYA Logo" className="app-logo" />
-                    <h1>AYA AI Trading Assistant</h1>
+                    <img src="data:image/svg+xml,%3csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3e%3cdefs%3e%3clinearGradient id='grad1' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3e%3cstop offset='0%25' style='stop-color:%236366f1;stop-opacity:1' /%3e%3cstop offset='100%25' style='stop-color:%23ec4899;stop-opacity:1' /%3e%3c/linearGradient%3e%3c/defs%3e%3cpath d='M 50 10 L 10 90 H 30 L 50 40 L 70 90 H 90 L 50 10 Z' fill='url(%23grad1)' /%3e%3cpath d='M 40 60 H 60 L 50 80 Z' fill='url(%23grad1)' /%3e%3c/svg%3e" alt="Nero Logo" className="app-logo" />
+                    <h1>Nero AI Trading Assistant</h1>
                 </div>
 
                 {!walletAddress && !isDemoMode && (
@@ -488,12 +488,12 @@ function Dashboard() {
                             </div>
 
                             <div className="ai-section card">
-                                <h3><Sparkles size={20} color="#ec4899" /> Ask Aya Anything!</h3>
+                                <h3><Sparkles size={20} color="#ec4899" /> Ask Nero Anything!</h3>
                                 <div className="ai-input-wrapper">
                                     <input type="text" value={userInput} onChange={(e) => setUserInput(e.target.value)} placeholder="e.g., Analyze my portfolio" />
                                     <button onClick={handleAskAI} disabled={isLoading}>{isLoading ? 'Thinking...' : 'Ask'}</button>
                                 </div>
-                                {aiResponse && (<div className="ai-response"><p><strong>Aya says:</strong> {aiResponse}</p></div>)}
+                                {aiResponse && (<div className="ai-response"><p><strong>Nero says:</strong> {aiResponse}</p></div>)}
                             </div>
                         </div>
 
