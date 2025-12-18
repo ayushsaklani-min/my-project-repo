@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { Wallet, History, ArrowRight, ArrowDown, Sparkles, RefreshCcw, TrendingUp, Settings, DollarSign, PieChart } from 'lucide-react';
 import '../App.css';
 import UniswapV2Router02ABI from '../abis/UniswapV2Router02.json';
 
@@ -405,8 +406,10 @@ function Dashboard() {
                 )}
 
                 {isDemoMode && !walletAddress && (
-                    <div style={{ marginBottom: '20px', padding: '10px', background: 'rgba(236, 72, 153, 0.2)', borderRadius: '8px', border: '1px solid #ec4899' }}>
-                        <strong>DEMO MODE ACTIVE:</strong> Using simulated funds. <button onClick={() => setIsDemoMode(false)} style={{ marginLeft: '10px', background: 'transparent', border: '1px solid #fff', color: '#fff', borderRadius: '4px', cursor: 'pointer' }}>Exit Demo</button>
+                    <div style={{ marginBottom: '20px', padding: '10px', background: 'rgba(236, 72, 153, 0.2)', borderRadius: '8px', border: '1px solid #ec4899', display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
+                        <Sparkles size={18} />
+                        <strong>DEMO MODE ACTIVE:</strong> Using simulated funds.
+                        <button onClick={() => setIsDemoMode(false)} style={{ marginLeft: '10px', background: 'transparent', border: '1px solid #fff', color: '#fff', borderRadius: '4px', cursor: 'pointer', padding: '2px 8px' }}>Exit Demo</button>
                     </div>
                 )}
 
@@ -416,15 +419,15 @@ function Dashboard() {
                     <div className="container">
                         <div className="left-column">
                             <div className="wallet-info card">
-                                <h3>Wallet Overview {isDemoMode && "(DEMO)"}</h3>
+                                <h3><Wallet size={20} color="#61dafb" /> Wallet Overview {isDemoMode && "(DEMO)"}</h3>
                                 <p><strong>Address:</strong> {walletAddress || "DEMO-USER"}</p>
                                 <div className="portfolio-stats">
                                     <div className="stat-item">
-                                        <span className="stat-label">Total Value:</span>
+                                        <span className="stat-label"><DollarSign size={14} style={{ marginBottom: '-2px' }} /> Total Value</span>
                                         <span className="stat-value">{formatCurrency(portfolioValue)}</span>
                                     </div>
                                     <div className="stat-item">
-                                        <span className="stat-label">Diversity:</span>
+                                        <span className="stat-label"><PieChart size={14} style={{ marginBottom: '-2px' }} /> Diversity</span>
                                         <span className="stat-value">{getDiversityScore()}</span>
                                     </div>
                                 </div>
@@ -447,9 +450,9 @@ function Dashboard() {
                                 <button
                                     onClick={() => setShowHistory(!showHistory)}
                                     className="history-toggle-btn"
-                                    style={{ marginTop: '10px', padding: '8px 16px', fontSize: '14px' }}
+                                    style={{ marginTop: '10px', padding: '8px 16px', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}
                                 >
-                                    {showHistory ? 'Hide' : 'Show'} Transaction History
+                                    <History size={16} /> {showHistory ? 'Hide' : 'Show'} Transaction History
                                 </button>
                                 {showHistory && (
                                     <div className="transaction-history">
@@ -460,7 +463,9 @@ function Dashboard() {
                                             transactionHistory.map(tx => (
                                                 <div key={tx.id} className="transaction-item">
                                                     <div className="tx-details">
-                                                        <span>{tx.fromAmount} {tx.fromToken} → {parseFloat(tx.toAmount).toFixed(4)} {tx.toToken}</span>
+                                                        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                            {tx.fromAmount} {tx.fromToken} <ArrowRight size={12} /> {parseFloat(tx.toAmount).toFixed(4)} {tx.toToken}
+                                                        </span>
                                                         <small>{tx.timestamp}</small>
                                                     </div>
                                                 </div>
@@ -471,7 +476,7 @@ function Dashboard() {
                             </div>
                             {/* --- PRICE CHART --- */}
                             <div className="chart-section card" style={{ height: '300px' }}>
-                                <h3>ETH Price Trend (Simulated)</h3>
+                                <h3><TrendingUp size={20} color="#6366f1" /> ETH Price Trend (Simulated)</h3>
                                 <ResponsiveContainer width="100%" height="80%">
                                     <LineChart data={MOCK_CHART_DATA}>
                                         <XAxis dataKey="time" stroke="#9ca3af" />
@@ -483,7 +488,7 @@ function Dashboard() {
                             </div>
 
                             <div className="ai-section card">
-                                <h3>Ask Aya Anything!</h3>
+                                <h3><Sparkles size={20} color="#ec4899" /> Ask Aya Anything!</h3>
                                 <div className="ai-input-wrapper">
                                     <input type="text" value={userInput} onChange={(e) => setUserInput(e.target.value)} placeholder="e.g., Analyze my portfolio" />
                                     <button onClick={handleAskAI} disabled={isLoading}>{isLoading ? 'Thinking...' : 'Ask'}</button>
