@@ -323,10 +323,17 @@ function Dashboard() {
     return (
         <div className="App">
             <header className="App-header">
-                <img src="data:image/svg+xml,%3csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3e%3cdefs%3e%3clinearGradient id='grad1' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3e%3cstop offset='0%25' style='stop-color:%2361dafb;stop-opacity:1' /%3e%3cstop offset='100%25' style='stop-color:%239261fb;stop-opacity:1' /%3e%3c/linearGradient%3e%3c/defs%3e%3cpath d='M 50 10 L 10 90 H 30 L 50 40 L 70 90 H 90 L 50 10 Z' fill='url(%23grad1)' /%3e%3cpath d='M 40 60 H 60 L 50 80 Z' fill='url(%23grad1)' /%3e%3c/svg%3e" alt="AYA Logo" style={{ width: '80px', marginBottom: '20px', borderRadius: '50%' }} />
-                <h1>AYA AI Trading Assistant</h1>
+                <div className="header-content">
+                    <img src="data:image/svg+xml,%3csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3e%3cdefs%3e%3clinearGradient id='grad1' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3e%3cstop offset='0%25' style='stop-color:%236366f1;stop-opacity:1' /%3e%3cstop offset='100%25' style='stop-color:%23ec4899;stop-opacity:1' /%3e%3c/linearGradient%3e%3c/defs%3e%3cpath d='M 50 10 L 10 90 H 30 L 50 40 L 70 90 H 90 L 50 10 Z' fill='url(%23grad1)' /%3e%3cpath d='M 40 60 H 60 L 50 80 Z' fill='url(%23grad1)' /%3e%3c/svg%3e" alt="AYA Logo" className="app-logo" />
+                    <h1>AYA AI Trading Assistant</h1>
+                </div>
 
-                {!walletAddress && (<button onClick={connectWallet} className="connect-wallet-btn">Connect Wallet</button>)}
+                {!walletAddress && (
+                    <div className="connect-container">
+                        <p className="welcome-text">Connect your wallet to analyze your portfolio and swap tokens.</p>
+                        <button onClick={connectWallet} className="connect-wallet-btn">Connect Wallet</button>
+                    </div>
+                )}
                 {message && <p className="message-box">{message}</p>}
 
                 {walletAddress && (
