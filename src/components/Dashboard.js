@@ -56,6 +56,39 @@ function Dashboard() {
     const [portfolioValue, setPortfolioValue] = useState(0);
 
     // Initial Demo balances
+    const fetchAllBalances = React.useCallback(async (currentProvider, account) => {
+        if (isDemoMode) return; // Don't fetch real balances in demo mode
+
+        setMessage("Fetching token balances...");
+        const portfolioData = {};
+        let totalValue = 0;
+
+        for (const tokenSymbol in TOKENS) {
+            const token = TOKENS[tokenSymbol];
+            try {
+                let balanceWei;
+                if (token.symbol === 'ETH') {
+                    balanceWei = await currentProvider.getBalance(account);
+                } else {
+                    const tokenContract = new ethers.Contract(token.address, ERC20_ABI, currentProvider);
+                    balanceWei = await tokenContract.balanceOf(account);
+                }
+                const balance = ethers.formatUnits(balanceWei, token.decimals);
+                portfolioData[tokenSymbol] = balance;
+
+                // Calculate portfolio value
+                const tokenValue = parseFloat(balance) * MOCK_PRICES[tokenSymbol];
+                totalValue += tokenValue;
+            } catch (error) {
+                console.error(`Could not fetch balance for ${tokenSymbol}`, error);
+                portfolioData[tokenSymbol] = "0";
+            }
+        }
+        setPortfolio(portfolioData);
+        setPortfolioValue(totalValue);
+        setMessage("");
+    }, [isDemoMode]);
+
     useEffect(() => {
         if (isDemoMode) {
             setPortfolio({ ETH: "10.0", WETH: "0.0", DAI: "0.0", USDC: "0.0" });
@@ -163,38 +196,7 @@ function Dashboard() {
         }
     }
 
-    const fetchAllBalances = React.useCallback(async (currentProvider, account) => {
-        if (isDemoMode) return; // Don't fetch real balances in demo mode
 
-        setMessage("Fetching token balances...");
-        const portfolioData = {};
-        let totalValue = 0;
-
-        for (const tokenSymbol in TOKENS) {
-            const token = TOKENS[tokenSymbol];
-            try {
-                let balanceWei;
-                if (token.symbol === 'ETH') {
-                    balanceWei = await currentProvider.getBalance(account);
-                } else {
-                    const tokenContract = new ethers.Contract(token.address, ERC20_ABI, currentProvider);
-                    balanceWei = await tokenContract.balanceOf(account);
-                }
-                const balance = ethers.formatUnits(balanceWei, token.decimals);
-                portfolioData[tokenSymbol] = balance;
-
-                // Calculate portfolio value
-                const tokenValue = parseFloat(balance) * MOCK_PRICES[tokenSymbol];
-                totalValue += tokenValue;
-            } catch (error) {
-                console.error(`Could not fetch balance for ${tokenSymbol}`, error);
-                portfolioData[tokenSymbol] = "0";
-            }
-        }
-        setPortfolio(portfolioData);
-        setPortfolioValue(totalValue);
-        setMessage("");
-    }, [isDemoMode]);
 
     async function handleSwap() {
         const amount = parseFloat(fromAmount);
